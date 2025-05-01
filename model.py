@@ -14,7 +14,11 @@ def train_model(X, y):
     model = LogisticRegression().fit(X, y)
     return model
 
+
 def predict_sentiment(headlines, model, vectorizer):
     X_new = vectorizer.transform(headlines)
-    return model.predict(X_new)
-
+    
+    # Headline Impact Confidence Score (extra credit)
+    probs = model.predict_proba(X_new)
+    preds = model.predict(X_new)
+    return preds, probs

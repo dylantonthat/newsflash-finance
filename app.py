@@ -2,20 +2,16 @@ import streamlit as st
 from data import get_stock_data, get_news, get_ticker_from_company
 from model import vectorize_text, label_stock_movement, train_model, predict_sentiment
 
-# -----------------------------
-# CONFIGURATION
-# -----------------------------
 from dotenv import load_dotenv
 import os
 
+from datetime import datetime, timedelta
+END_DATE = datetime.today().date().isoformat()
+START_DATE = (datetime.today() - timedelta(days=29)).date().isoformat()
+
+
 load_dotenv()
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-START_DATE = "2025-03-10"
-END_DATE = "2025-04-01"
-
-# -----------------------------
-# 📊 STREAMLIT APP
-# -----------------------------
 st.title("📉 NewsFlash Finance")
 st.subheader("Using NLP to Gauge Stock Reactions to Breaking News")
 
@@ -55,14 +51,15 @@ if company_name:
 
                 st.success("Model trained")
 
-                # Headline input (always above chart)
                 user_input = st.text_input("Enter a breaking news headline")
 
                 if user_input:
-                    pred = predict_sentiment([user_input], model, vectorizer)
-                    st.write("Predicted Market Reaction:", "To the Moon" if pred[0] else "Down to Earth")
+                    preds, probs = predict_sentiment([user_input], model, vectorizer)
+                    confidence = probs[0][preds[0]] * 100
+                    st.write("Predicted Market Reaction:", 
+                             "To the Moon" if preds[0] else "Down to Earth")
+                    st.write(f"Confidence: **{confidence:.2f}%**")
 
-                # Display stock price chart regardless of prediction input
                 st.subheader(f"Stock Price Chart for {company_name} ({ticker})")
                 st.line_chart(stock_df['Close'])
 
