@@ -6,7 +6,6 @@ import requests
 def get_stock_data(ticker, start, end):
     stock = yf.download(ticker, start=start, end=end)
     return stock[['Open', 'Close']]
-
 def get_news(api_key, company_name, from_date, to_date):
     url = (
         f"https://newsapi.org/v2/everything?"
@@ -19,9 +18,16 @@ def get_news(api_key, company_name, from_date, to_date):
     )
     response = requests.get(url)
     data = response.json()
-    print(data)
     articles = data.get("articles", [])
-    return [a["title"] for a in articles]
+
+    # Extract and print headlines
+    titles = [a["title"] for a in articles]
+    print("Headlines:")
+    for i, title in enumerate(titles, 1):
+        print(f"{i}. {title}")
+
+    return titles
+
 
 def get_ticker_from_company(company_name):
     """
